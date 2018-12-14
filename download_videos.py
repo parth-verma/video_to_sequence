@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 import skvideo.io
 import cv2
-import cv
 import os
 import ipdb
 
@@ -18,15 +17,15 @@ def download_and_process_video(save_path, row):
     start = row['Start']
     end = row['End']
 
-    print video_id
+    print("Downloading", video_id)
 
     if os.path.exists('tmp.mp4'):
         os.system('rm tmp.mp4')
 
     try: # 다운로드 포기
         youtube = YouTube("https://www.youtube.com/watch?v="+video_id)
-    except:
-        print "다운로드 포기"
+    except Exception as e:
+        print(e)
         return
 
     youtube.set_filename('tmp')
@@ -38,10 +37,10 @@ def download_and_process_video(save_path, row):
     video.download('.')
 
     cap = cv2.VideoCapture( 'tmp.mp4' )
-    fps = cap.get(cv.CV_CAP_PROP_FPS)
-    fourcc = int(cap.get(cv.CV_FOURCC(*'XVID')))
-    w = int(cap.get(cv.CV_CAP_PROP_FRAME_WIDTH))
-    h = int(cap.get(cv.CV_CAP_PROP_FRAME_HEIGHT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    fourcc = int(cap.get(cv2.FOURCC(*'XVID')))
+    w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     out = cv2.VideoWriter( full_path, fourcc, fps, (w,h))
 
