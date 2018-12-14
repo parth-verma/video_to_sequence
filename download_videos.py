@@ -1,5 +1,7 @@
 #-*- coding: utf-8 -*-
+import subprocess
 from pytube import YouTube
+from youtube_dl import YoutubeDL
 import pandas as pd
 import numpy as np
 import skvideo.io
@@ -17,24 +19,24 @@ def download_and_process_video(save_path, row):
     start = row['Start']
     end = row['End']
 
-    print("Downloading", video_id)
+    print("Downloading", "http://youtube.com/watch?v="+video_id)
 
     if os.path.exists('tmp.mp4'):
-        os.system('rm tmp.mp4')
-
-    try: # 다운로드 포기
-        youtube = YouTube("https://www.youtube.com/watch?v="+video_id)
-    except Exception as e:
-        print(e)
-        return
-
-    youtube.set_filename('tmp')
-
-    try: # 360p로 받아보고 안되면 예외처리
-        video = youtube.get('mp4', '360p')
-    except:
-        ipdb.set_trace()
-    video.download('.')
+        os.system('rm -f tmp.*')
+    subprocess.run("youtube-dl \'https://www.youtube.com/watch?v="+video_id+"' -f \'best[height=360]\' --output 'videos/%(id)s.%(ext)s'",stdout=subprocess.PIPE)
+    return
+#    try: # 다운로드 포기
+ #       youtube = YouTube("http://youtube.com/watch?v="+video_id).stream.filter(subtype='mp4',res='360p').first().download(filename="tmp.mp4")
+  #  except Exception as e:
+   #     print(e)
+    #    return
+ #ydl_opts = {'outtmpl': 'tmp.%(ext)s','format': 'best[height=360]','postprocessors': [{
+  #      'key': 'FFmpegVideoConvertor',
+   #     'preferedformat': 'mp4',  # one of avi, flv, mkv,mp4, ogg, webm
+#        '--strict':'2'
+   # }]}
+    #with YoutubeDL(ydl_opts) as ydl:
+     #   ydl.download(["http://youtube.com/watch?v="+video_id])
 
     cap = cv2.VideoCapture( 'tmp.mp4' )
     fps = cap.get(cv2.CAP_PROP_FPS)
